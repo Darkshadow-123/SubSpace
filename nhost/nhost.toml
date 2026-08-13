@@ -1,2 +1,5 @@
 [global]
 
+[[hasura.jwtSecrets]]
+   type = 'HS256'
+   key = '{{ secrets.HASURA_GRAPHQL_JWT_SECRET }}'
