@@ -8,9 +8,6 @@ insert_permissions:
     permission: {columns: [workflow_id, org_id, payload], check: {workflow: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}}}
   - role: editor
     permission: {columns: [workflow_id, org_id, payload], check: {workflow: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}]}}}}}
-update_permissions:
-  - role: admin
-    permission: {columns: [processed], filter: {}, check: {}}
 event_triggers:
   - name: database_event_trigger
     definition:

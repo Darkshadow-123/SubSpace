@@ -1,4 +1,5 @@
 table: {schema: public, name: organizations}
+object_relationships: [{name: usage, using: {manual_configuration: {remote_table: {schema: public, name: org_usage_this_month}, column_mapping: {id: org_id}}}}]
 array_relationships: [{name: members, using: {foreign_key_constraint_on: {table: org_members, column: org_id}}}, {name: workflows, using: {foreign_key_constraint_on: {table: workflows, column: org_id}}}]
 select_permissions:
   - role: owner

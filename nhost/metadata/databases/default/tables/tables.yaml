@@ -8,3 +8,4 @@
 - '!include public_workflow_results.yaml'
 - '!include public_notification_events.yaml'
 - '!include public_database_watch_events.yaml'
+- '!include public_org_usage_this_month.yaml'

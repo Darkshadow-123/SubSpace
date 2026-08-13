@@ -1,5 +1,5 @@
 - name: run-scheduled-workflows
-  webhook: '{{FUNCTIONS_URL}}/scheduledPoll'
+  webhook: '{{NHOST_FUNCTIONS_URL}}/scheduledPoll'
   schedule: '*/5 * * * *'
   include_in_metadata: true
   payload: {}

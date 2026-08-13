@@ -2,13 +2,13 @@ actions:
   - name: triggerWorkflowRun
     definition:
       kind: synchronous
-      handler: '{{FUNCTIONS_URL}}/triggerWorkflowRun'
+      handler: '{{NHOST_FUNCTIONS_URL}}/triggerWorkflowRun'
       headers: [{name: x-hasura-admin-secret, value_from_env: NHOST_ADMIN_SECRET}]
     permissions: [{role: owner}, {role: editor}]
   - name: approveStep
     definition:
       kind: synchronous
-      handler: '{{FUNCTIONS_URL}}/approveStep'
+      handler: '{{NHOST_FUNCTIONS_URL}}/approveStep'
       headers: [{name: x-hasura-admin-secret, value_from_env: NHOST_ADMIN_SECRET}]
     permissions: [{role: owner}, {role: editor}]
 custom_types:

@@ -3,12 +3,6 @@ object_relationships: [{name: workflow_run, using: {foreign_key_constraint_on: w
 select_permissions:
   - role: owner
     permission: {columns: '*', filter: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}, {org_id: {_eq: notification_events.org_id}}]}}}}
-insert_permissions:
-  - role: admin
-    permission: {columns: '*', check: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}, {org_id: {_eq: notification_events.org_id}}]}}}}
-update_permissions:
-  - role: admin
-    permission: {columns: [processed], filter: {}, check: {}}
 event_triggers:
   - name: notification_events_trigger
     definition:
