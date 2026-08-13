@@ -3,6 +3,3 @@
 [[global.environment]]
 name = 'GEMINI_API_KEY'
 value = '{{ secrets.GEMINI_API_KEY }}'
-
-[hasura]
-enabled = true
