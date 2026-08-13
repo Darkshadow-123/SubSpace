@@ -1,5 +1,20 @@
 [global]
 
+[hasura]
+version = "v2.48.10-ce"
+adminSecret = "{{ secrets.HASURA_GRAPHQL_ADMIN_SECRET }}"
+webhookSecret = "{{ secrets.NHOST_WEBHOOK_SECRET }}"
+
 [[hasura.jwtSecrets]]
-   type = 'HS256'
-   key = '{{ secrets.HASURA_GRAPHQL_JWT_SECRET }}'
+type = "HS256"
+key = "{{ secrets.HASURA_GRAPHQL_JWT_SECRET }}"
+
+[postgres]
+version = "14.20-20251217-1"
+
+[postgres.resources.compute]
+cpu = 500
+memory = 1920
+
+[postgres.resources.storage]
+capacity = 1
