@@ -1,0 +1,3 @@
+version: 3
+metadata_directory: nhost/metadata
+migrations_directory: nhost/migrations
