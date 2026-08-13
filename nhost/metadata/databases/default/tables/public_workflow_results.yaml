@@ -1,0 +1,8 @@
+table: {schema: public, name: workflow_results}
+select_permissions:
+  - role: owner
+    permission: {columns: '*', filter: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}, {org_id: {_eq: workflow_results.org_id}}]}}}}
+  - role: editor
+    permission: {columns: '*', filter: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}, {org_id: {_eq: workflow_results.org_id}}]}}}}
+  - role: viewer
+    permission: {columns: '*', filter: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: viewer}}, {org_id: {_eq: workflow_results.org_id}}]}}}}

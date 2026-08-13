@@ -1,0 +1,2 @@
+import type { Response } from 'express'; import { ActionRequest, actionUser } from '../_shared/hasura.js'; import { start } from '../_shared/engine.js'
+export default async (req:ActionRequest,res:Response) => { try { const userId = actionUser(req); const workflowId = String(req.body.input.workflow_id); const payload = (req.body.input.input as Record<string,unknown>) || {}; const id = await start(workflowId, userId, 'manual', payload); res.json({run_id:id,status:'running'}) } catch(e){res.status(403).json({message:e instanceof Error?e.message:'Unable to start run'})} }

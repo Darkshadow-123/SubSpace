@@ -1,0 +1,3 @@
+import type { Request, Response } from 'express'; import { gql } from '../_shared/hasura.js'; import { start } from '../_shared/engine.js'
+// Configure this function as a Hasura cron trigger. It starts enabled scheduled workflows.
+export default async (_req:Request,res:Response) => { const d=await gql<any>('query{workflow_triggers(where:{type:{_eq:"scheduled"},enabled:{_eq:true}}){workflow_id workflow{created_by}}}',{}); const settled=await Promise.allSettled(d.workflow_triggers.map((t:any)=>start(t.workflow_id,t.workflow.created_by,'scheduled',{}))); res.json({started:settled.filter(x=>x.status==='fulfilled').length}) }

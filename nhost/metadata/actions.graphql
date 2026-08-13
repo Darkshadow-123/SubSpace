@@ -1,0 +1,5 @@
+type Mutation {
+  triggerWorkflowRun(workflow_id: uuid!, input: jsonb): TriggerWorkflowRunOutput!
+  approveStep(workflow_run_id: uuid!, position: Int!): TriggerWorkflowRunOutput!
+}
+type TriggerWorkflowRunOutput { run_id: uuid!, status: String! }

@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: nhost_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nhost
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./nhost/migrations/default/1710000000000_workflow_builder/up.sql:/docker-entrypoint-initdb.d/01-init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - nhost-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h 127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  hasura:
+    image: hasura/graphql-engine:v2.38.0
+    container_name: nhost_hasura
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgres@postgres:5432/nhost
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: hasura_admin_secret
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"your_jwt_secret_key_change_this_in_production"}'
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: "startup, http-log, webhook-log, websocket-log, query-log"
+      ACTION_BASE_URL: http://localhost:3001
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nhost/metadata:/hasura/metadata
+    networks:
+      - nhost-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth:
+    image: nhost/hasura-auth:0.26
+    container_name: nhost_auth
+    depends_on:
+      hasura:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: nhost
+      HASURA_GRAPHQL_ADMIN_SECRET: hasura_admin_secret
+      HASURA_GRAPHQL_GRAPHQL_URL: http://hasura:8080/v1/graphql
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"your_jwt_secret_key_change_this_in_production"}'
+      SERVER_URL: http://auth:4000
+      PROVIDER_GITHUB_ENABLED: "false"
+      PROVIDER_ANONYMOUS_ENABLED: "true"
+      AUTO_MIGRATE: "true"
+    ports:
+      - "1337:4000"
+    networks:
+      - nhost-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  nhost-network:
+    driver: bridge

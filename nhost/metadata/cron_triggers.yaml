@@ -1,0 +1,6 @@
+- name: run-scheduled-workflows
+  webhook: '{{FUNCTIONS_URL}}/scheduledPoll'
+  schedule: '*/5 * * * *'
+  include_in_metadata: true
+  payload: {}
+  headers: [{name: x-hasura-admin-secret, value_from_env: NHOST_ADMIN_SECRET}]

@@ -1,0 +1,18 @@
+table: {schema: public, name: org_members}
+object_relationships: [{name: organization, using: {foreign_key_constraint_on: org_id}}]
+select_permissions:
+  - role: owner
+    permission: {columns: '*', filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}}
+  - role: editor
+    permission: {columns: [role, created_at], filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}]}}}, allow_aggregations: false}
+  - role: viewer
+    permission: {columns: [role, created_at], filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: viewer}}]}}}, allow_aggregations: false}
+insert_permissions:
+  - role: owner
+    permission: {columns: '*', check: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}, {org_id: {_eq: org_members.org_id}}]}}}}
+update_permissions:
+  - role: owner
+    permission: {columns: [role], filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}, check: null}
+delete_permissions:
+  - role: owner
+    permission: {filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}}

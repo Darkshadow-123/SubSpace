@@ -1,0 +1,11 @@
+[global]
+
+[[global.environment]]
+name = 'GEMINI_API_KEY'
+value = '{{ secrets.GEMINI_API_KEY }}'
+
+[auth]
+client_url = 'http://localhost:3000'
+
+[hasura]
+enabled = true

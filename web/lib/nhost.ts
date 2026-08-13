@@ -1,0 +1,3 @@
+import { NhostClient } from '@nhost/nhost-js'
+export const nhost = new NhostClient({subdomain:process.env.NEXT_PUBLIC_NHOST_SUBDOMAIN||'local',region:process.env.NEXT_PUBLIC_NHOST_REGION||undefined})
+export async function graph<T>(query:string,variables:Record<string,unknown>={},role='viewer'):Promise<T>{const token=(await nhost.auth.getSession())?.accessToken; const r=await fetch(nhost.graphql.getUrl(),{method:'POST',headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{ }),'x-hasura-role':role},body:JSON.stringify({query,variables})});const b=await r.json();if(b.errors)throw new Error(b.errors.map((e:{message:string})=>e.message).join(', '));return b.data}
