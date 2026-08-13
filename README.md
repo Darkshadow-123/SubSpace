@@ -185,9 +185,4 @@ For production:
 └── TESTING.md               # Final scenario walkthrough
 ```
 
-## See Also
 
-- [IMPLEMENTATION.md](IMPLEMENTATION.md) — detailed component-by-component status
-- [TESTING.md](TESTING.md) — step-by-step final scenario
-- [docs/writeup.md](docs/writeup.md) — design rationale
-- [docs/permission-model.md](nhost/metadata/permission-model.md) — permission system deep dive
