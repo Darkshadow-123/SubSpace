@@ -286,16 +286,8 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                       )}
 
                       {step.type === 'db_write' && (
-                        <div className="input-group">
-                          <label>
-                            TARGET DATABASE TABLE <span className="label-hint">(Stores execution payload)</span>
-                          </label>
-                          <input
-                            placeholder="workflow_results"
-                            value={String(step.config.table ?? 'workflow_results')}
-                            onChange={e => updateStepConfig(i, 'table', e.target.value)}
-                          />
-                          <p className="field-help-text">💡 <b>Suggested Table:</b> <code>workflow_results</code> (Persists current run payload securely with tenant <code>org_id</code>)</p>
+                        <div className="node-info-banner cyan">
+                          💾 <b>Database Persistence:</b> Automatically saves accumulated step execution context payloads securely into the <code>workflow_results</code> database table with multi-tenant <code>org_id</code> sandbox isolation.
                         </div>
                       )}
 
