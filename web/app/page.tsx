@@ -88,7 +88,6 @@ export default function Home() {
           <div className="input-group">
             <label htmlFor="email">EMAIL ADDRESS</label>
             <div className="input-field-wrapper">
-              <span className="field-icon">✉</span>
               <input
                 id="email"
                 placeholder={mode === 'signin' ? 'e.g. org_a_owner@example.com' : 'e.g. user@example.com'}
@@ -103,7 +102,6 @@ export default function Home() {
           <div className="input-group">
             <label htmlFor="password">PASSWORD</label>
             <div className="input-field-wrapper">
-              <span className="field-icon">🔒</span>
               <input
                 id="password"
                 placeholder="••••••••••••"
