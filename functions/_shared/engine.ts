@@ -7,7 +7,7 @@ const Q = {
   member: `query($org:uuid!,$user:uuid!){org_members_by_pk(org_id:$org,user_id:$user){role}}`,
   createRun: `mutation($object:workflow_runs_insert_input!){insert_workflow_runs_one(object:$object){id org_id workflow_id input current_position}}`,
   updateRun: `mutation($id:uuid!,$set:workflow_runs_set_input!){update_workflow_runs_by_pk(pk_columns:{id:$id},_set:$set){id}}`,
-  createStepRun: `mutation($object:step_runs_insert_input!){insert_step_runs_one(object:$object){id}}`,
+  createStepRun: `mutation($object:step_runs_insert_input!){insert_step_runs_one(object:$object,on_conflict:{constraint:step_runs_workflow_run_id_position_key,update_columns:[status,input,started_at]}){id}}`,
   updateStepRun: `mutation($run:uuid!,$position:Int!,$set:step_runs_set_input!){update_step_runs(where:{workflow_run_id:{_eq:$run},position:{_eq:$position}},_set:$set){affected_rows}}`,
   run: `query($id:uuid!){workflow_runs_by_pk(id:$id){id org_id workflow_id input current_position status workflow{workflow_steps(order_by:{position:asc}){id position type config}}}}`,
   quota: `mutation($id:uuid!,$limit:Int!){update_organizations(where:{id:{_eq:$id},calls_used:{_lt:$limit}},_inc:{calls_used:1}){returning{calls_used calls_allowed}}}`
@@ -30,8 +30,12 @@ export async function resume(runId:string) {
  const result = await gql<{workflow_runs_by_pk:(Run & {status:string;workflow:{workflow_steps:Step[]}})|null}>(Q.run,{id:runId}); const run=result.workflow_runs_by_pk; if(!run || run.status==='completed'||run.status==='failed') return
  const steps=run.workflow.workflow_steps; let context:Record<string,unknown>=run.input || {}
  for (const step of steps.filter(s=>s.position>=run.current_position)) {
+  if(step.type==='approval_gate') {
+   await gql(Q.createStepRun,{object:{workflow_run_id:run.id,step_id:step.id,org_id:run.org_id,position:step.position,status:'paused',input:context,started_at:new Date().toISOString()}})
+   await gql(Q.updateRun,{id:run.id,set:{status:'paused',current_position:step.position}})
+   return
+  }
   await gql(Q.createStepRun,{object:{workflow_run_id:run.id,step_id:step.id,org_id:run.org_id,position:step.position,status:'running',input:context,started_at:new Date().toISOString()}})
-  if(step.type==='approval_gate') { await gql(Q.updateStepRun,{run:run.id,position:step.position,set:{status:'paused'}}); await gql(Q.updateRun,{id:run.id,set:{status:'paused',current_position:step.position}}); return }
   if(step.type==='conditional_branch') { try { const output=await execute(step,context,run); context={...context,[`step_${step.position}`]:output}; await gql(Q.updateStepRun,{run:run.id,position:step.position,set:{status:'succeeded',output,finished_at:new Date().toISOString()}}); if (output.branch === 'else') { const nextApprovalIdx = steps.findIndex(s=>s.position>step.position && s.type==='approval_gate'); const newPos = nextApprovalIdx>=0?steps[nextApprovalIdx].position:steps.length; await gql(Q.updateRun,{id:run.id,set:{current_position:newPos}}); if(newPos>=steps.length){await gql(Q.updateRun,{id:run.id,set:{status:'completed',output:context,finished_at:new Date().toISOString()}}); return} void resume(run.id); return } } catch (e) { await gql(Q.updateStepRun,{run:run.id,position:step.position,set:{status:'failed',error:e instanceof Error?e.message:'Unknown error',finished_at:new Date().toISOString()}}); await gql(Q.updateRun,{id:run.id,set:{status:'failed'}}); return } continue }
   try { const output=await execute(step,context,run); context={...context,[`step_${step.position}`]:output}; await gql(Q.updateStepRun,{run:run.id,position:step.position,set:{status:'succeeded',output,finished_at:new Date().toISOString()}}); await gql(Q.updateRun,{id:run.id,set:{current_position:step.position+1}}) }
   catch (e) { await gql(Q.updateStepRun,{run:run.id,position:step.position,set:{status:'failed',error:e instanceof Error?e.message:'Unknown error',finished_at:new Date().toISOString()}}); await gql(Q.updateRun,{id:run.id,set:{status:'failed',error:e instanceof Error?e.message:'Unknown error',finished_at:new Date().toISOString()}}); return }
