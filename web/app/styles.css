@@ -38,8 +38,8 @@
   --status-pending-bg: rgba(100, 116, 139, 0.15);
 
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
   --radius-full: 9999px;
 
   --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07);
@@ -108,7 +108,7 @@ h2 {
   margin-bottom: 14px;
 }
 
-/* Universal Text Inputs & Textareas */
+/* Universal Pixel-Perfect Form Controls */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -116,39 +116,34 @@ textarea,
 select {
   display: block;
   width: 100%;
-  padding: 12px 16px;
+  height: 42px;
+  padding: 0 14px;
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-family: var(--font-sans);
-  line-height: 1.5;
-  transition: all 0.2s ease;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  line-height: 40px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+/* Textarea Height & Code Styling */
 textarea {
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
-  resize: vertical;
+  height: auto;
   min-height: 76px;
+  max-height: 180px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
 }
 
 input::placeholder,
 textarea::placeholder {
   color: rgba(148, 163, 184, 0.45);
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: #818cf8;
-  background: rgba(15, 23, 42, 0.95);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 0 15px rgba(99, 102, 241, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Custom Styled Dropdowns */
@@ -159,23 +154,27 @@ select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a5b4fc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
-  background-size: 16px 16px;
-  padding-right: 40px !important;
-  background-color: rgba(30, 41, 59, 0.85);
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  font-size: 0.92rem;
-  font-family: var(--font-sans);
-  font-weight: 500;
+  background-size: 15px 15px;
+  padding-right: 38px !important;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 select option {
   background-color: #0f172a;
   color: #f8fafc;
   padding: 10px;
+}
+
+/* Form Control Focus Glow */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #818cf8;
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22), 0 0 12px rgba(99, 102, 241, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Buttons */
@@ -187,10 +186,11 @@ button {
   background: var(--accent-gradient);
   color: #ffffff;
   border: none;
-  padding: 10px 20px;
+  height: 42px;
+  padding: 0 20px;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -258,7 +258,7 @@ button.primary {
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .input-group label {
@@ -321,7 +321,7 @@ button.primary {
 
 .auth-submit-btn {
   margin-top: 10px;
-  padding: 14px;
+  height: 48px;
   font-size: 1rem;
 }
 
@@ -394,11 +394,12 @@ header {
   gap: 8px;
   background: rgba(30, 41, 59, 0.85);
   border: 1px solid var(--border-glow);
-  padding: 8px 16px;
+  padding: 0 16px;
+  height: 42px;
   border-radius: var(--radius-md);
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.98rem;
   color: var(--text-primary);
   box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
 }
@@ -412,7 +413,8 @@ header {
   align-items: center;
   gap: 8px;
   background: rgba(30, 41, 59, 0.5);
-  padding: 8px 16px;
+  padding: 0 16px;
+  height: 42px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
   font-size: 0.85rem;
@@ -422,7 +424,7 @@ header {
 
 /* Role Badges */
 .role {
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 700;
@@ -644,7 +646,8 @@ article .muted {
 }
 
 .node-btn {
-  padding: 4px 10px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
   font-size: 0.78rem !important;
   border-radius: var(--radius-sm) !important;
 }
@@ -698,7 +701,7 @@ article .muted {
 
 .add-step-card select {
   width: 100%;
-  padding: 14px 18px;
+  height: 48px;
   font-weight: 600;
   border-style: dashed;
   border-color: rgba(99, 102, 241, 0.4);
