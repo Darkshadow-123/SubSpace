@@ -8,36 +8,67 @@ export default function Home() {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('viewer')
   const [ready, setReady] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   if (ready) return <Dashboard role={role} />
 
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      setError('Please enter both email and password.')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const { error } = await nhost.auth.signIn({ email, password })
+      if (error) {
+        setError(error.message)
+        return
+      }
+
+      const resolvedRole = await getSessionRole()
+      setRole(resolvedRole)
+      setReady(true)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Sign in failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <main className="auth">
-      <p className="eyebrow">AI AGENT WORKFLOW BUILDER</p>
-      <h1>Build trusted agent automations.</h1>
-      <p>Every workflow is scoped to its organization and streamed live.</p>
+      <div className="eyebrow">⚡ AGENTFLOW CONTROL ROOM</div>
+      <h1>Build & Automate AI Agents</h1>
+      <p>Multi-tenant workflow engine with real-time execution streaming & role-gated approvals.</p>
 
-      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
+      <input
+        placeholder="Email address"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSignIn()}
+      />
+      <input
+        placeholder="Password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSignIn()}
+      />
 
-      <button
-        onClick={async () => {
-          const { error } = await nhost.auth.signIn({ email, password })
-          if (error) {
-            setError(error.message)
-            return
-          }
-
-          const resolvedRole = await getSessionRole()
-          setRole(resolvedRole)
-          setReady(true)
-        }}
-      >
-        Sign in
+      <button className="primary" disabled={loading} onClick={handleSignIn}>
+        {loading ? 'Signing in...' : 'Sign in to Workspace →'}
       </button>
 
-      {error && <small>{error}</small>}
+      {error && <div className="error">{error}</div>}
+
+      <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--border-subtle)', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+        <p style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>🔑 Quick Test Logins:</p>
+        <code style={{ display: 'block', marginBottom: '4px' }}>Org A Owner: org_a_owner@example.com</code>
+        <code>Org A Editor: org_a_editor@example.com</code>
+      </div>
     </main>
   )
 }

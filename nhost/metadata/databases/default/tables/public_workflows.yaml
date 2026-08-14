@@ -10,9 +10,9 @@ select_permissions:
     permission: {columns: '*', filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: viewer}}]}}}}
 insert_permissions:
   - role: owner
-    permission: {check: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}, {org_id: {_eq: workflows.org_id}}]}}}, columns: '*'}
+    permission: {check: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}, columns: '*'}
   - role: editor
-    permission: {check: {_exists: {_table: {schema: public, name: org_members}, _where: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}, {org_id: {_eq: workflows.org_id}}]}}}, columns: '*'}
+    permission: {check: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}]}}}, columns: '*'}
 update_permissions:
   - role: owner
     permission: {columns: '*', filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}, check: null}

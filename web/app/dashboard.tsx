@@ -131,7 +131,7 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
             {orgs.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select>
           <div className="quota"><b>{org.calls_used}/{org.calls_allowed}</b><span> calls this month</span></div>
-          <span className="role">{role}</span>
+          <span className={`role ${role}`}>{role}</span>
           {role !== 'viewer' && <button onClick={() => setShowBuilder(!showBuilder)}>+ New workflow</button>}
         </section>
       )}
@@ -139,6 +139,11 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
       {showBuilder && role !== 'viewer' && org && (
         <section className="builder">
           <h2>Create workflow</h2>
+          {role === 'editor' && (
+            <div className="role-restriction-info">
+              🛡️ <b>Editor Role Active:</b> Restricted from adding sensitive steps (<code>db_write</code>, <code>notify</code>) and <code>webhook</code> triggers.
+            </div>
+          )}
           <input placeholder="Workflow name" value={workflowName} onChange={e => setWorkflowName(e.target.value)} />
           <div>
             <h3>Steps ({buildingSteps.length})</h3>
@@ -227,7 +232,7 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                 e.target.value = ''
               }
             }}>
-              <option value="">Add step...</option>
+              <option value="">+ Add step...</option>
               {STEP_TYPES.filter(t => role === 'owner' || (t !== 'db_write' && t !== 'notify')).map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
@@ -237,28 +242,55 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
               {TRIGGER_TYPES.filter(t => role === 'owner' || t !== 'webhook').map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
-          <button className="primary" onClick={saveWorkflow}>Save workflow</button>
-          <button onClick={() => setShowBuilder(false)}>Cancel</button>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button className="primary" onClick={saveWorkflow}>Save workflow</button>
+            <button className="ghost" onClick={() => setShowBuilder(false)}>Cancel</button>
+          </div>
         </section>
       )}
 
-      <section className="grid">
-        {workflows.map(w => (
-          <article key={w.id}>
-            <h2>{w.name}</h2>
-            <p>{w.description || 'No description'}</p>
-            <div className="chips">
-              {w.workflow_steps.map(s => <span key={s.id}>{s.position + 1}. {s.type}</span>)}
-            </div>
-            <p className="muted">Triggers: {w.workflow_triggers.map(t => t.type).join(', ') || 'manual'} · {w.workflow_runs[0]?.status || 'not run'}</p>
-            {role !== 'viewer' && <button onClick={() => trigger(w.id).catch(e => setMessage(e.message))}>Run workflow</button>}
-          </article>
-        ))}
-      </section>
+      {workflows.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">🔒</div>
+          <h3>No Workflows in {org?.name || 'this Organization'}</h3>
+          <p>Multi-tenant organization data is strictly isolated. Workflows created in other organizations cannot be accessed.</p>
+          {role !== 'viewer' && (
+            <button className="primary" onClick={() => setShowBuilder(true)}>+ Create First Workflow</button>
+          )}
+        </div>
+      ) : (
+        <section className="grid">
+          {workflows.map(w => (
+            <article key={w.id}>
+              <div>
+                <div className="card-header">
+                  <h2>{w.name}</h2>
+                  <span className={`status ${w.workflow_runs[0]?.status || 'pending'}`}>
+                    {w.workflow_runs[0]?.status || 'ready'}
+                  </span>
+                </div>
+                <p>{w.description || 'No description'}</p>
+                <div className="chips">
+                  {w.workflow_steps.map(s => <span key={s.id}>{s.position + 1}. {s.type}</span>)}
+                </div>
+                <p className="muted">⚡ Triggers: {w.workflow_triggers.map(t => t.type).join(', ') || 'manual'}</p>
+              </div>
+              {role !== 'viewer' && (
+                <button className="primary" onClick={() => trigger(w.id).catch(e => setMessage(e.message))}>
+                  ▶ Run Workflow
+                </button>
+              )}
+            </article>
+          ))}
+        </section>
+      )}
 
       {run && (
         <section className="live">
-          <h2>Live run</h2>
+          <div className="live-panel-header">
+            <h2>Live Run Dashboard</h2>
+            <button className="ghost" onClick={() => setRun('')}>✕ Close Panel</button>
+          </div>
           <RunLive
             runId={run}
             canApprove={role !== 'viewer'}
@@ -275,7 +307,6 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
               }
             }}
           />
-          <button onClick={() => setRun('')}>Close</button>
         </section>
       )}
 
