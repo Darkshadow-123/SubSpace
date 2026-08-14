@@ -123,16 +123,27 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
 
       {org && (
         <section className="toolbar">
-          <select value={org.id} onChange={e => {
-            const next = orgs.find(x => x.id === e.target.value)!
-            setOrg(next)
-            setWorkflows((next as Org & {workflows: Workflow[]})?.workflows || [])
-          }}>
-            {orgs.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
-          </select>
-          <div className="quota"><b>{org.calls_used}/{org.calls_allowed}</b><span> calls this month</span></div>
-          <span className={`role ${role}`}>{role}</span>
-          {role !== 'viewer' && <button onClick={() => setShowBuilder(!showBuilder)}>+ New workflow</button>}
+          <div className="toolbar-left">
+            {orgs.length > 1 ? (
+              <select value={org.id} onChange={e => {
+                const next = orgs.find(x => x.id === e.target.value)!
+                setOrg(next)
+                setWorkflows((next as Org & {workflows: Workflow[]})?.workflows || [])
+              }}>
+                {orgs.map(x => <option key={x.id} value={x.id}>🏢 {x.name}</option>)}
+              </select>
+            ) : (
+              <div className="org-badge">
+                <span className="org-icon">🏢</span>
+                <span className="org-name">{org.name}</span>
+              </div>
+            )}
+          </div>
+          <div className="toolbar-right">
+            <div className="quota"><b>{org.calls_used}/{org.calls_allowed}</b><span> calls this month</span></div>
+            <span className={`role ${role}`}>{role}</span>
+            {role !== 'viewer' && <button className="primary" onClick={() => setShowBuilder(!showBuilder)}>+ New workflow</button>}
+          </div>
         </section>
       )}
 
