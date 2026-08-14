@@ -211,8 +211,16 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                     <div className="node-config-fields">
                       {step.type === 'llm_call' && (
                         <div className="input-group">
-                          <label>PROMPT TEMPLATE (Use {"{{context}}"} for upstream step context)</label>
-                          <textarea rows={3} value={String(step.config.prompt ?? '')} onChange={e => updateStepConfig(i, 'prompt', e.target.value)} />
+                          <label>
+                            PROMPT TEMPLATE <span className="label-hint">(Use {"{{context}}"} to inject context)</span>
+                          </label>
+                          <textarea
+                            rows={3}
+                            placeholder="Summarize this context: {{context}}"
+                            value={String(step.config.prompt ?? 'Summarize this context: {{context}}')}
+                            onChange={e => updateStepConfig(i, 'prompt', e.target.value)}
+                          />
+                          <p className="field-help-text">💡 <b>Suggested Prompt:</b> <code>Summarize this context: {"{{context}}"}</code> or <code>Analyze previous step response: {"{{context}}"}</code></p>
                         </div>
                       )}
 
@@ -220,7 +228,11 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                         <div className="input-grid-2">
                           <div className="input-group">
                             <label>TARGET URL</label>
-                            <input value={String(step.config.url ?? '')} onChange={e => updateStepConfig(i, 'url', e.target.value)} />
+                            <input
+                              placeholder="https://httpbin.org/post"
+                              value={String(step.config.url ?? 'https://httpbin.org/post')}
+                              onChange={e => updateStepConfig(i, 'url', e.target.value)}
+                            />
                           </div>
                           <div className="input-group">
                             <label>HTTP METHOD</label>
@@ -233,16 +245,31 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                             </select>
                           </div>
                           <div className="input-group full-width">
-                            <label>REQUEST BODY (JSON payload)</label>
-                            <textarea rows={2} value={String(step.config.body ?? '')} onChange={e => updateStepConfig(i, 'body', e.target.value)} />
+                            <label>
+                              REQUEST BODY <span className="label-hint">(JSON payload string)</span>
+                            </label>
+                            <textarea
+                              rows={2}
+                              placeholder='{"status":"ok"}'
+                              value={String(step.config.body ?? '{"status":"ok"}')}
+                              onChange={e => updateStepConfig(i, 'body', e.target.value)}
+                            />
+                            <p className="field-help-text">💡 <b>Suggested Test URL:</b> <code>https://httpbin.org/post</code> (Retries automatically on 5xx failures)</p>
                           </div>
                         </div>
                       )}
 
                       {step.type === 'conditional_branch' && (
                         <div className="input-group">
-                          <label>MATCH TEXT (If upstream context contains string)</label>
-                          <input value={String(step.config.contains ?? '')} onChange={e => updateStepConfig(i, 'contains', e.target.value)} />
+                          <label>
+                            MATCH TEXT <span className="label-hint">(Evaluated against upstream context string)</span>
+                          </label>
+                          <input
+                            placeholder="approved"
+                            value={String(step.config.contains ?? 'approved')}
+                            onChange={e => updateStepConfig(i, 'contains', e.target.value)}
+                          />
+                          <p className="field-help-text">💡 <b>Suggested String:</b> <code>approved</code> or <code>ok</code> (Branches to <code>if</code> path when matched, or <code>else</code> path when missing)</p>
                         </div>
                       )}
 
@@ -253,6 +280,21 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                             <option value="owner">Owner Only</option>
                             <option value="editor">Owner or Editor</option>
                           </select>
+                          <p className="field-help-text">💡 <b>Human Gate:</b> Execution pauses until an authenticated <code>{String(step.config.required_role ?? 'owner')}</code> approves via the Live Stream UI.</p>
+                        </div>
+                      )}
+
+                      {step.type === 'db_write' && (
+                        <div className="input-group">
+                          <label>
+                            TARGET DATABASE TABLE <span className="label-hint">(Stores execution payload)</span>
+                          </label>
+                          <input
+                            placeholder="workflow_results"
+                            value={String(step.config.table ?? 'workflow_results')}
+                            onChange={e => updateStepConfig(i, 'table', e.target.value)}
+                          />
+                          <p className="field-help-text">💡 <b>Suggested Table:</b> <code>workflow_results</code> (Persists current run payload securely with tenant <code>org_id</code>)</p>
                         </div>
                       )}
 
@@ -261,13 +303,20 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
                           <div className="input-group">
                             <label>CHANNEL TYPE</label>
                             <select value={String(step.config.channel ?? 'event')} onChange={e => updateStepConfig(i, 'channel', e.target.value)}>
-                              <option value="event">In-App Event Log</option>
-                              <option value="webhook">External Webhook</option>
+                              <option value="event">In-App Event Log (notification_events)</option>
+                              <option value="webhook">External Webhook Endpoint</option>
                             </select>
                           </div>
                           <div className="input-group">
                             <label>WEBHOOK URL</label>
-                            <input value={String(step.config.url ?? '')} onChange={e => updateStepConfig(i, 'url', e.target.value)} />
+                            <input
+                              placeholder="https://example.com/webhook"
+                              value={String(step.config.url ?? 'https://example.com/webhook')}
+                              onChange={e => updateStepConfig(i, 'url', e.target.value)}
+                            />
+                          </div>
+                          <div className="full-width">
+                            <p className="field-help-text">💡 <b>Event Log vs Webhook:</b> <code>event</code> saves alerts to <code>notification_events</code>; <code>webhook</code> dispatches HTTP POST payloads.</p>
                           </div>
                         </div>
                       )}
