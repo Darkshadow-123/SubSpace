@@ -43,31 +43,58 @@ export default function Home() {
       <h1>Build & Automate AI Agents</h1>
       <p>Multi-tenant workflow engine with real-time execution streaming & role-gated approvals.</p>
 
-      <input
-        placeholder="Email address"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSignIn()}
-      />
-      <input
-        placeholder="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSignIn()}
-      />
+      <form className="auth-form" onSubmit={(e) => { e.preventDefault(); handleSignIn(); }}>
+        <div className="input-group">
+          <label htmlFor="email">EMAIL ADDRESS</label>
+          <div className="input-field-wrapper">
+            <span className="field-icon">✉</span>
+            <input
+              id="email"
+              placeholder="e.g. org_a_owner@example.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
+        </div>
 
-      <button className="primary" disabled={loading} onClick={handleSignIn}>
-        {loading ? 'Signing in...' : 'Sign in to Workspace →'}
-      </button>
+        <div className="input-group">
+          <label htmlFor="password">PASSWORD</label>
+          <div className="input-field-wrapper">
+            <span className="field-icon">🔒</span>
+            <input
+              id="password"
+              placeholder="••••••••••••"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+        </div>
+
+        <button type="submit" className="primary auth-submit-btn" disabled={loading}>
+          {loading ? 'Signing in...' : 'Sign in to Workspace →'}
+        </button>
+      </form>
 
       {error && <div className="error">{error}</div>}
 
-      <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--border-subtle)', textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        <p style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>🔑 Quick Test Logins:</p>
-        <code style={{ display: 'block', marginBottom: '4px' }}>Org A Owner: org_a_owner@example.com</code>
-        <code>Org A Editor: org_a_editor@example.com</code>
+      <div className="test-credentials-box">
+        <p className="credentials-header">🔑 Quick Test Credentials:</p>
+        <div className="credential-row">
+          <span>Org A Owner:</span>
+          <code>org_a_owner@example.com</code>
+        </div>
+        <div className="credential-row">
+          <span>Org A Editor:</span>
+          <code>org_a_editor@example.com</code>
+        </div>
+        <div className="credential-row">
+          <span>Org B Owner:</span>
+          <code>org_b_owner@example.com</code>
+        </div>
       </div>
     </main>
   )

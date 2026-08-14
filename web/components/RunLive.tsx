@@ -39,7 +39,22 @@ export function RunLive({
           variables: { id: runId }
         },
         {
-          next: (v) => setItems((v.data as { step_runs: Item[] }).step_runs),
+          next: (v) => {
+            const stepRuns = (v.data as { step_runs: Item[] }).step_runs || []
+            setItems(stepRuns)
+            // Auto-expand outputs for succeeded/approved steps
+            setExpandedOutput((prev) => {
+              const updated = { ...prev }
+              stepRuns.forEach((step) => {
+                if (step.output && (step.status === 'succeeded' || step.status === 'approved')) {
+                  if (updated[step.position] === undefined) {
+                    updated[step.position] = true
+                  }
+                }
+              })
+              return updated
+            })
+          },
           error: console.error,
           complete: () => {}
         }
@@ -69,6 +84,8 @@ export function RunLive({
     }
   }
 
+  const allCompleted = items.length > 0 && items.every((s) => s.status === 'succeeded' || s.status === 'approved')
+
   return (
     <div className="run-live-container">
       <div className="live-header-badge">
@@ -91,7 +108,7 @@ export function RunLive({
             {s.output && (
               <div className="output-toggle-wrapper">
                 <button type="button" className="ghost output-btn" onClick={() => toggleOutput(s.position)}>
-                  {expandedOutput[s.position] ? 'Hide Output JSON' : 'Show Output JSON'}
+                  {expandedOutput[s.position] ? '▼ Hide Step Output' : '▶ Show Step Output'}
                 </button>
                 {expandedOutput[s.position] && (
                   <pre className="output-json">{JSON.stringify(s.output, null, 2)}</pre>
@@ -129,6 +146,27 @@ export function RunLive({
           </li>
         ))}
       </ol>
+
+      {allCompleted && (
+        <div className="workflow-completed-card">
+          <div className="completed-header">
+            <span>🎉 WORKFLOW COMPLETED SUCCESSFULLY</span>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: '8px 0 12px' }}>
+            All steps executed and approved. Aggregated execution context & outputs:
+          </p>
+          <pre className="output-json">
+            {JSON.stringify(
+              items.reduce((acc, step) => {
+                acc[`step_${step.position}_output`] = step.output || { status: step.status }
+                return acc
+              }, {} as Record<string, unknown>),
+              null,
+              2
+            )}
+          </pre>
+        </div>
+      )}
     </div>
   )
 }

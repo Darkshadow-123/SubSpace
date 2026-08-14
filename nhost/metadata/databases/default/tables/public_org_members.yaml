@@ -4,9 +4,9 @@ select_permissions:
   - role: owner
     permission: {columns: '*', filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}}
   - role: editor
-    permission: {columns: [role, created_at], filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}]}}}, allow_aggregations: false}
+    permission: {columns: '*', filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: editor}}]}}}, allow_aggregations: false}
   - role: viewer
-    permission: {columns: [role, created_at], filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: viewer}}]}}}, allow_aggregations: false}
+    permission: {columns: '*', filter: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: viewer}}]}}}, allow_aggregations: false}
 insert_permissions:
   - role: owner
     permission: {columns: '*', check: {organization: {members: {_and: [{user_id: {_eq: X-Hasura-User-Id}}, {role: {_eq: owner}}]}}}}
