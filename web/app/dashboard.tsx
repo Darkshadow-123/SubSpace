@@ -16,7 +16,7 @@ type Org = {
   workflows?: Workflow[]
 }
 
-const QUERY = `query($user:uuid!){organizations(where:{members:{user_id:{_eq:$user}}}){id name calls_used calls_allowed members(where:{user_id:{_eq:$user}}){role} workflows(order_by:{created_at:desc}){id name description workflow_steps(order_by:{position:asc}){id position type config} workflow_triggers{id type} workflow_runs(limit:1,order_by:{created_at:desc}){id status created_at}}}}`
+const QUERY = `query{organizations{id name calls_used calls_allowed members{role} workflows(order_by:{created_at:desc}){id name description workflow_steps(order_by:{position:asc}){id position type config} workflow_triggers{id type} workflow_runs(limit:1,order_by:{created_at:desc}){id status created_at}}}}`
 
 const STEP_TYPES = ['llm_call', 'http_request', 'conditional_branch', 'approval_gate', 'db_write', 'notify'] as const
 const TRIGGER_TYPES = ['manual', 'webhook', 'scheduled'] as const
@@ -69,7 +69,7 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
     try {
       const u = (await nhost.auth.getSession())?.user
       if (!u) return
-      const d = await graph<{organizations: Org[]}>(QUERY, {user: u.id}, role)
+      const d = await graph<{organizations: Org[]}>(QUERY, {}, role)
       setOrgs(d.organizations)
       setOrg(d.organizations[0] || null)
       setWorkflows((d.organizations[0] as Org & {workflows: Workflow[]})?.workflows || [])
