@@ -167,6 +167,7 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
             <label htmlFor="wf-name">WORKFLOW NAME</label>
             <input
               id="wf-name"
+              type="text"
               placeholder="e.g. AI Customer Support Pipeline"
               value={workflowName}
               onChange={e => setWorkflowName(e.target.value)}
