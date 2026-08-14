@@ -491,7 +491,7 @@ article .muted {
   font-family: var(--font-mono);
 }
 
-/* Builder Section */
+/* Builder Section & Agentic Studio */
 .builder {
   background: var(--bg-card);
   backdrop-filter: blur(20px);
@@ -502,13 +502,55 @@ article .muted {
   box-shadow: var(--shadow-card), var(--shadow-glow);
 }
 
+.builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+}
+
+.builder-section-title {
+  margin-bottom: 16px;
+}
+
+.builder-section-title h3 {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.builder-section-title p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.step-builder-node-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .step-item {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 12px;
+  padding: 18px;
+  margin-bottom: 8px;
 }
+
+.node-card {
+  border-left: 4px solid #6366f1;
+  background: rgba(15, 23, 42, 0.85);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.node-card.llm { border-left-color: #8b5cf6; }
+.node-card.http { border-left-color: #10b981; }
+.node-card.branch { border-left-color: #f59e0b; }
+.node-card.gate { border-left-color: #f43f5e; }
+.node-card.db { border-left-color: #06b6d4; }
+.node-card.notify { border-left-color: #6366f1; }
 
 .step-header {
   display: flex;
@@ -517,6 +559,130 @@ article .muted {
   font-family: var(--font-mono);
   font-size: 0.9rem;
   color: #818cf8;
+}
+
+.node-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.node-icon {
+  font-size: 1.2rem;
+}
+
+.node-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.node-btn {
+  padding: 4px 10px !important;
+  font-size: 0.78rem !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.node-btn.delete {
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.node-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.node-config-fields {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.input-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.input-grid-2 .full-width {
+  grid-column: span 2;
+}
+
+.flow-connector {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.connector-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px dashed rgba(99, 102, 241, 0.3);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+}
+
+.add-step-card select {
+  width: 100%;
+  padding: 14px 18px;
+  font-weight: 600;
+  border-style: dashed;
+  border-color: rgba(99, 102, 241, 0.4);
+  background-color: rgba(15, 23, 42, 0.6);
+}
+
+.add-step-card select:hover {
+  border-color: #818cf8;
+  background-color: rgba(15, 23, 42, 0.85);
+}
+
+.trigger-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.trigger-option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trigger-option-card:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: var(--border-glow);
+}
+
+.trigger-option-card.active {
+  border-color: #818cf8;
+  background: rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.trigger-option-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trigger-option-card strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.trigger-option-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .step-header button {

@@ -138,112 +138,216 @@ export default function Dashboard({role}: {role: 'owner' | 'editor' | 'viewer'})
 
       {showBuilder && role !== 'viewer' && org && (
         <section className="builder">
-          <h2>Create workflow</h2>
+          <div className="builder-header">
+            <div>
+              <div className="eyebrow">🛠️ WORKFLOW STUDIO</div>
+              <h2>Build Agentic Automation</h2>
+            </div>
+            <button type="button" className="ghost" onClick={() => setShowBuilder(false)}>✕ Close Builder</button>
+          </div>
+
           {role === 'editor' && (
             <div className="role-restriction-info">
               🛡️ <b>Editor Role Active:</b> Restricted from adding sensitive steps (<code>db_write</code>, <code>notify</code>) and <code>webhook</code> triggers.
             </div>
           )}
-          <input placeholder="Workflow name" value={workflowName} onChange={e => setWorkflowName(e.target.value)} />
-          <div>
-            <h3>Steps ({buildingSteps.length})</h3>
-            {buildingSteps.map((step, i) => (
-              <div key={i} className="step-item">
-                <div className="step-header">
-                  <span>{i + 1}. {step.type}</span>
-                  <div>
-                    <button type="button" onClick={() => moveStep(i, -1)}>↑</button>
-                    <button type="button" onClick={() => moveStep(i, 1)}>↓</button>
-                    <button type="button" onClick={() => setBuildingSteps(buildingSteps.filter((_, j) => j !== i))}>Remove</button>
-                  </div>
-                </div>
 
-                {step.type === 'llm_call' && (
-                  <label>
-                    Prompt
-                    <textarea value={String(step.config.prompt ?? '')} onChange={e => updateStepConfig(i, 'prompt', e.target.value)} />
-                  </label>
-                )}
+          <div className="input-group" style={{ marginBottom: '24px' }}>
+            <label htmlFor="wf-name">WORKFLOW NAME</label>
+            <input
+              id="wf-name"
+              placeholder="e.g. AI Customer Support Pipeline"
+              value={workflowName}
+              onChange={e => setWorkflowName(e.target.value)}
+            />
+          </div>
 
-                {step.type === 'http_request' && (
-                  <>
-                    <label>
-                      URL
-                      <input value={String(step.config.url ?? '')} onChange={e => updateStepConfig(i, 'url', e.target.value)} />
-                    </label>
-                    <label>
-                      Method
-                      <select value={String(step.config.method ?? 'POST')} onChange={e => updateStepConfig(i, 'method', e.target.value)}>
-                        <option value="GET">GET</option>
-                        <option value="POST">POST</option>
-                        <option value="PUT">PUT</option>
-                        <option value="PATCH">PATCH</option>
-                        <option value="DELETE">DELETE</option>
-                      </select>
-                    </label>
-                    <label>
-                      Body
-                      <textarea value={String(step.config.body ?? '')} onChange={e => updateStepConfig(i, 'body', e.target.value)} />
-                    </label>
-                  </>
-                )}
+          <div className="builder-steps-container">
+            <div className="builder-section-title">
+              <h3>⚡ Agentic Execution Chain ({buildingSteps.length} Steps)</h3>
+              <p>Drag or reorder steps. Execution proceeds sequentially from top to bottom.</p>
+            </div>
 
-                {step.type === 'conditional_branch' && (
-                  <label>
-                    Match text
-                    <input value={String(step.config.contains ?? '')} onChange={e => updateStepConfig(i, 'contains', e.target.value)} />
-                  </label>
-                )}
-
-                {step.type === 'approval_gate' && (
-                  <label>
-                    Required role
-                    <select value={String(step.config.required_role ?? 'owner')} onChange={e => updateStepConfig(i, 'required_role', e.target.value)}>
-                      <option value="owner">owner</option>
-                      <option value="editor">editor</option>
-                    </select>
-                  </label>
-                )}
-
-                {step.type === 'notify' && (
-                  <>
-                    <label>
-                      Channel
-                      <select value={String(step.config.channel ?? 'event')} onChange={e => updateStepConfig(i, 'channel', e.target.value)}>
-                        <option value="event">event</option>
-                        <option value="webhook">webhook</option>
-                      </select>
-                    </label>
-                    <label>
-                      Webhook URL
-                      <input value={String(step.config.url ?? '')} onChange={e => updateStepConfig(i, 'url', e.target.value)} />
-                    </label>
-                  </>
-                )}
-              </div>
-            ))}
-            <select onChange={e => {
-              if (e.target.value) {
-                if (role === 'editor' && (e.target.value === 'db_write' || e.target.value === 'notify')) {
-                  setMessage(`${role} role cannot add ${e.target.value} steps`)
-                  return
+            {buildingSteps.map((step, i) => {
+              const getStepBadge = (type: string) => {
+                switch (type) {
+                  case 'llm_call': return { icon: '🤖', label: 'AI Model (LLM)', cls: 'llm' }
+                  case 'http_request': return { icon: '🌐', label: 'HTTP Request', cls: 'http' }
+                  case 'conditional_branch': return { icon: '🔀', label: 'Conditional Branch', cls: 'branch' }
+                  case 'approval_gate': return { icon: '⏸️', label: 'Approval Gate', cls: 'gate' }
+                  case 'db_write': return { icon: '💾', label: 'Database Write', cls: 'db' }
+                  case 'notify': return { icon: '🔔', label: 'Notification Alert', cls: 'notify' }
+                  default: return { icon: '⚙️', label: type, cls: 'default' }
                 }
-                setBuildingSteps([...buildingSteps, {type: e.target.value, config: defaultStepConfig(e.target.value)}])
-                e.target.value = ''
               }
+              const badge = getStepBadge(step.type)
+
+              return (
+                <div key={i} className="step-builder-node-wrapper">
+                  <div className={`step-item node-card ${badge.cls}`}>
+                    <div className="step-header">
+                      <div className="node-title-badge">
+                        <span className="node-icon">{badge.icon}</span>
+                        <b>Step {i + 1}: {badge.label}</b>
+                      </div>
+                      <div className="node-actions">
+                        <button type="button" className="ghost node-btn" disabled={i === 0} onClick={() => moveStep(i, -1)}>↑ Up</button>
+                        <button type="button" className="ghost node-btn" disabled={i === buildingSteps.length - 1} onClick={() => moveStep(i, 1)}>↓ Down</button>
+                        <button type="button" className="ghost node-btn delete" onClick={() => setBuildingSteps(buildingSteps.filter((_, j) => j !== i))}>✕ Remove</button>
+                      </div>
+                    </div>
+
+                    <div className="node-config-fields">
+                      {step.type === 'llm_call' && (
+                        <div className="input-group">
+                          <label>PROMPT TEMPLATE (Use {"{{context}}"} for upstream step context)</label>
+                          <textarea rows={3} value={String(step.config.prompt ?? '')} onChange={e => updateStepConfig(i, 'prompt', e.target.value)} />
+                        </div>
+                      )}
+
+                      {step.type === 'http_request' && (
+                        <div className="input-grid-2">
+                          <div className="input-group">
+                            <label>TARGET URL</label>
+                            <input value={String(step.config.url ?? '')} onChange={e => updateStepConfig(i, 'url', e.target.value)} />
+                          </div>
+                          <div className="input-group">
+                            <label>HTTP METHOD</label>
+                            <select value={String(step.config.method ?? 'POST')} onChange={e => updateStepConfig(i, 'method', e.target.value)}>
+                              <option value="GET">GET</option>
+                              <option value="POST">POST</option>
+                              <option value="PUT">PUT</option>
+                              <option value="PATCH">PATCH</option>
+                              <option value="DELETE">DELETE</option>
+                            </select>
+                          </div>
+                          <div className="input-group full-width">
+                            <label>REQUEST BODY (JSON payload)</label>
+                            <textarea rows={2} value={String(step.config.body ?? '')} onChange={e => updateStepConfig(i, 'body', e.target.value)} />
+                          </div>
+                        </div>
+                      )}
+
+                      {step.type === 'conditional_branch' && (
+                        <div className="input-group">
+                          <label>MATCH TEXT (If upstream context contains string)</label>
+                          <input value={String(step.config.contains ?? '')} onChange={e => updateStepConfig(i, 'contains', e.target.value)} />
+                        </div>
+                      )}
+
+                      {step.type === 'approval_gate' && (
+                        <div className="input-group">
+                          <label>REQUIRED APPROVAL ROLE</label>
+                          <select value={String(step.config.required_role ?? 'owner')} onChange={e => updateStepConfig(i, 'required_role', e.target.value)}>
+                            <option value="owner">Owner Only</option>
+                            <option value="editor">Owner or Editor</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {step.type === 'notify' && (
+                        <div className="input-grid-2">
+                          <div className="input-group">
+                            <label>CHANNEL TYPE</label>
+                            <select value={String(step.config.channel ?? 'event')} onChange={e => updateStepConfig(i, 'channel', e.target.value)}>
+                              <option value="event">In-App Event Log</option>
+                              <option value="webhook">External Webhook</option>
+                            </select>
+                          </div>
+                          <div className="input-group">
+                            <label>WEBHOOK URL</label>
+                            <input value={String(step.config.url ?? '')} onChange={e => updateStepConfig(i, 'url', e.target.value)} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {i < buildingSteps.length - 1 && (
+                    <div className="flow-connector">
+                      <span className="connector-arrow">↓ NEXT STEP</span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            <div className="add-step-card">
+              <select onChange={e => {
+                if (e.target.value) {
+                  if (role === 'editor' && (e.target.value === 'db_write' || e.target.value === 'notify')) {
+                    setMessage(`${role} role cannot add ${e.target.value} steps`)
+                    return
+                  }
+                  setBuildingSteps([...buildingSteps, {type: e.target.value, config: defaultStepConfig(e.target.value)}])
+                  e.target.value = ''
+                }
+              }}>
+                <option value="">➕ Add Execution Step Node...</option>
+                {STEP_TYPES.filter(t => role === 'owner' || (t !== 'db_write' && t !== 'notify')).map(t => (
+                  <option key={t} value={t}>{t === 'llm_call' ? '🤖 llm_call (AI Generation)' : t === 'http_request' ? '🌐 http_request (External API)' : t === 'conditional_branch' ? '🔀 conditional_branch (If/Else)' : t === 'approval_gate' ? '⏸️ approval_gate (Human Gate)' : t === 'db_write' ? '💾 db_write (Database Save)' : '🔔 notify (Notification)'}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="trigger-card-section" style={{ marginTop: '32px' }}>
+            <div className="builder-section-title">
+              <h3>⚡ Trigger Mechanism</h3>
+            </div>
+            <div className="trigger-options-grid">
+              <label className={`trigger-option-card ${triggerType === 'manual' ? 'active' : ''}`}>
+                <input type="radio" name="trigger" value="manual" checked={triggerType === 'manual'} onChange={e => setTriggerType(e.target.value)} />
+                <div>
+                  <strong>▶ Manual Trigger</strong>
+                  <p>Execute on demand via UI button</p>
+                </div>
+              </label>
+              <label className={`trigger-option-card ${triggerType === 'webhook' ? 'active' : ''} ${role === 'editor' ? 'disabled' : ''}`}>
+                <input type="radio" name="trigger" value="webhook" disabled={role === 'editor'} checked={triggerType === 'webhook'} onChange={e => setTriggerType(e.target.value)} />
+                <div>
+                  <strong>🪝 Webhook Endpoint</strong>
+                  <p>Trigger via external POST endpoint</p>
+                </div>
+              </label>
+              <label className={`trigger-option-card ${triggerType === 'scheduled' ? 'active' : ''}`}>
+                <input type="radio" name="trigger" value="scheduled" checked={triggerType === 'scheduled'} onChange={e => setTriggerType(e.target.value)} />
+                <div>
+                  <strong>⏰ Scheduled Cron</strong>
+                  <p>Automated 5-minute background polling</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="builder-actions-bar" style={{ marginTop: '32px', display: 'flex', gap: '12px' }}>
+            <button className="primary" onClick={async () => {
+              if (!workflowName) {
+                setMessage('Please specify a workflow name.')
+                return
+              }
+              if (buildingSteps.length === 0) {
+                setMessage('Please add at least one step node.')
+                return
+              }
+              const created = await graph<{insert_workflows_one: {id: string}}>(
+                `mutation($org:uuid!,$name:String!,$steps:[workflow_steps_insert_input!]!,$triggers:[workflow_triggers_insert_input!]!){insert_workflows_one(object:{org_id:$org,name:$name,workflow_steps:{data:$steps},workflow_triggers:{data:$triggers}}){id}}`,
+                {
+                  org: org.id,
+                  name: workflowName,
+                  steps: buildingSteps.map((s, i) => ({position: i, type: s.type, config: s.config, org_id: org.id})),
+                  triggers: [{type: triggerType, org_id: org.id}]
+                },
+                role
+              )
+              setMessage(`Workflow created: ${created.insert_workflows_one.id}`)
+              setShowBuilder(false)
+              setWorkflowName('')
+              setBuildingSteps([])
+              await load()
             }}>
-              <option value="">+ Add step...</option>
-              {STEP_TYPES.filter(t => role === 'owner' || (t !== 'db_write' && t !== 'notify')).map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div>
-            <h3>Trigger</h3>
-            <select value={triggerType} onChange={e => setTriggerType(e.target.value)}>
-              {TRIGGER_TYPES.filter(t => role === 'owner' || t !== 'webhook').map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button className="primary" onClick={saveWorkflow}>Save workflow</button>
+              🚀 Save & Deploy Workflow
+            </button>
             <button className="ghost" onClick={() => setShowBuilder(false)}>Cancel</button>
           </div>
         </section>
